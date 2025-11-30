@@ -33,7 +33,6 @@
 </head>
 <body class="min-h-screen">
     <div class="flex flex-col h-screen">
-        <!-- HEADER -->
         <header class="flex items-center justify-between p-4 border-b border-[var(--input-border-color)] flex-shrink-0">
              <h1 class="text-[var(--text-color)] text-lg font-bold tracking-tight">
                 <span style="color: var(--primary-color);">EDITOR DE CÁMARA</span>
@@ -43,10 +42,8 @@
         </header>
 
         <main class="flex flex-1 overflow-hidden">
-            <!-- Controls Pane -->
             <aside class="w-96 p-4 overflow-y-auto border-r border-[var(--input-border-color)] flex-shrink-0">
                 <div class="space-y-4">
-                    <!-- Connection -->
                     <div class="p-4 rounded-lg bg-[var(--surface-color)] border border-[var(--input-border-color)]">
                         <label class="font-semibold mb-2 block">Conexión</label>
                         <div class="flex items-center gap-2"><input type="number" id="channelId" placeholder="Código de 4 dígitos" class="w-full rounded-lg text-[var(--text-color)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] border border-[var(--input-border-color)] bg-transparent h-10 p-2"><button id="connectBtn" class="relative flex-shrink-0 h-10 px-4 rounded-lg bg-[var(--primary-color)] text-white font-bold disabled:bg-gray-400">Conectar</button></div>
@@ -54,19 +51,24 @@
                         <div id="status" class="text-center text-sm font-semibold mt-3">Desconectado</div>
                     </div>
 
-                    <!-- Image Tools -->
                     <div class="p-4 rounded-lg bg-[var(--surface-color)] border border-[var(--input-border-color)]">
                         <label class="font-semibold mb-2 block">Herramientas</label>
-                         <div class="grid grid-cols-5 gap-2 text-center">
+                          <div class="grid grid-cols-5 gap-2 text-center">
                             <button id="undoBtn" title="Deshacer" class="tool-btn p-2 rounded-lg text-[var(--secondary-color)] bg-gray-100 dark:bg-gray-700 disabled:opacity-50" disabled><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8a5 5 0 0 1 0 10H9" /></svg></button>
                             <button id="rotateBtn" title="Rotar" class="tool-btn p-2 rounded-lg text-[var(--secondary-color)] bg-gray-100 dark:bg-gray-700 disabled:opacity-50" disabled><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5M4 20h5v-5M20 4h-5v5" /></svg></button>
                             <button id="cropBtn" title="Recortar" class="tool-btn p-2 rounded-lg text-[var(--secondary-color)] bg-gray-100 dark:bg-gray-700 disabled:opacity-50" disabled><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.121 14.121L19 19M4.879 4.879L9.75 9.75m-4.871 0L19 4.879M4.879 19L19 9.75" /></svg></button>
                             <button id="drawModeBtn" title="Dibujar" class="tool-btn p-2 rounded-lg text-[var(--secondary-color)] bg-gray-100 dark:bg-gray-700 disabled:opacity-50" disabled><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button>
+                            <button id="collageBtn" title="Fusionar Imagen (Collage)" class="tool-btn p-2 rounded-lg text-[var(--secondary-color)] bg-gray-100 dark:bg-gray-700 disabled:opacity-50" disabled>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20v-6a2 2 0 00-2-2H5" /> 
+                                </svg>
+                            </button>
                             <button id="resetImageBtn" title="Restaurar Imagen Original" class="tool-btn p-2 rounded-lg text-[var(--secondary-color)] bg-gray-100 dark:bg-gray-700 disabled:opacity-50" disabled><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5M4 20h5v-5M20 4h-5v5" /></svg></button>
-                         </div>
-                   </div>
+                          </div>
+                          <input type="file" id="collageInput" class="hidden" accept="image/png, image/jpeg">
+                    </div>
 
-                    <!-- Nº de Registro -->
                     <div class="p-4 rounded-lg bg-[var(--surface-color)] border border-[var(--input-border-color)]">
                         <label class="font-semibold mb-2 block">Nº de Registro</label>
                         <div class="flex items-center gap-2">
@@ -81,7 +83,6 @@
                         <div class="mt-2"><label for="positionSelect" class="text-xs font-semibold">Posición</label><select id="positionSelect" class="w-full mt-1 rounded-lg text-[var(--text-color)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] border border-[var(--input-border-color)] bg-transparent h-10 p-2" disabled></select></div>
                     </div>
                     
-                    <!-- Branding -->
                     <div class="p-4 rounded-lg bg-[var(--surface-color)] border border-[var(--input-border-color)]">
                         <label class="font-semibold mb-2 block">Branding</label>
                         <div class="grid grid-cols-3 gap-2 mb-2">
@@ -97,7 +98,6 @@
                         </div>
                     </div>
                     
-                    <!-- Acciones -->
                     <div class="p-4 rounded-lg bg-[var(--surface-color)] border border-[var(--input-border-color)] space-y-2">
                          <label class="font-semibold mb-1 block">Acciones</label>
                          <div class="flex items-center justify-between bg-gray-100 dark:bg-gray-700 p-2 rounded-lg">
@@ -123,7 +123,7 @@
     </div>
     <div id="toast" class="toast-notification bg-gray-800 text-white py-3 px-6 rounded-full shadow-lg"><span id="toast-message"></span></div>
 <script>
-// --- SCRIPT PARA DESKTOP.HTML ---
+// --- SCRIPT PRINCIPAL ---
 const firebaseConfig = { apiKey: "AIzaSyAbahVsQxI_HOz_yPtDlp4hXSdZO0dvRl4", authDomain: "camara-app-lugo.firebaseapp.com", databaseURL: "https://camara-app-lugo-default-rtdb.europe-west1.firebasedatabase.app", projectId: "camara-app-lugo", storageBucket: "camara-app-lugo.appspot.com", messagingSenderId: "437448426207", appId: "1:437448426207:web:a9dbecc8cbdb77d0c4df6a" };
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
@@ -133,7 +133,8 @@ const channelIdInput = get('channelId'), connectBtn = get('connectBtn'), statusD
 const prefixInput = get('prefixInput'), requestNumberInput = get('requestNumberInput'), incrementBtn = get('incrementBtn');
 const fontSizeInput = get('fontSizeInput'), positionSelect = get('positionSelect');
 const downloadPngBtn = get('downloadPngBtn'), downloadJpgBtn = get('downloadJpgBtn'), jpgQuality = get('jpgQuality');
-const cropBtn = get('cropBtn'), rotateBtn = get('rotateBtn'), drawModeBtn = get('drawModeBtn'), resetImageBtn = get('resetImageBtn'), undoBtn = get('undoBtn');
+const cropBtn = get('cropBtn'), rotateBtn = get('rotateBtn'), drawModeBtn = get('drawModeBtn'), collageBtn = get('collageBtn'), resetImageBtn = get('resetImageBtn'), undoBtn = get('undoBtn');
+const collageInput = get('collageInput');
 const canvas = get('canvas'), ctx = canvas.getContext('2d'), placeholderText = get('placeholderText');
 const themeToggle = get('themeToggle'), qrContainer = get('qrContainer');
 const logoSelect = get('logoSelect');
@@ -144,6 +145,7 @@ let isCropping = false, isDrawing = false;
 let cropStartX = 0, cropStartY = 0, cropEndX = 0, cropEndY = 0;
 let history = [], companyLogos = [new Image(), new Image(), new Image()];
 let toastTimeout;
+let originalIconCollage = collageBtn ? collageBtn.innerHTML : '';
 
 const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.106a.75.75 0 010 1.06l-1.591 1.59a.75.75 0 11-1.06-1.06l1.59-1.591a.75.75 0 011.06 0zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.894 17.894a.75.75 0 011.06 0l1.59 1.591a.75.75 0 11-1.06 1.06l-1.591-1.59a.75.75 0 010-1.06zM12 21a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V21.75A.75.75 0 0112 21zM5.106 17.894a.75.75 0 010-1.06l1.591-1.59a.75.75 0 111.06 1.06l-1.59 1.591a.75.75 0 01-1.06 0zM3 12a.75.75 0 01.75-.75h2.25a.75.75 0 010 1.5H3.75A.75.75 0 013 12zM6.106 6.106a.75.75 0 011.06 0l1.591 1.59a.75.75 0 111.06-1.06l-1.59-1.591a.75.75 0 010-1.06z" /></svg>`;
 const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 004.472-.69a.75.75 0 01.82.162l.805.806a.75.75 0 01-.162.82a10.488 10.488 0 01-5.05 3.402A10.488 10.488 0 019.5 21a10.5 10.5 0 01-10.236-9.273A10.488 10.488 0 015.05 1.936a.75.75 0 01.82-.162l.806.805a.75.75 0 01.162.82zM10.25 11.25a.75.75 0 01.75-.75h.008a.75.75 0 01.75.75v.008a.75.75 0 01-.75.75h-.008a.75.75 0 01-.75-.75v-.008zM12.25 7.5a.75.75 0 01.75-.75h.008a.75.75 0 01.75.75v.008a.75.75 0 01-.75.75h-.008a.75.75 0 01-.75-.75V7.5z" clip-rule="evenodd" /></svg>`;
@@ -165,7 +167,7 @@ function loadSettings() {
     }
 }
 function enableAllControls(enabled) {
-    [prefixInput, requestNumberInput, incrementBtn, fontSizeInput, positionSelect, downloadPngBtn, downloadJpgBtn, jpgQuality, cropBtn, rotateBtn, drawModeBtn, resetImageBtn, logoSelect, batchModeToggle, ...document.querySelectorAll('.image-filter'), ...document.querySelectorAll('input[name="color"]')].forEach(el => el.disabled = !enabled);
+    [prefixInput, requestNumberInput, incrementBtn, fontSizeInput, positionSelect, downloadPngBtn, downloadJpgBtn, jpgQuality, cropBtn, rotateBtn, drawModeBtn, collageBtn, resetImageBtn, logoSelect, batchModeToggle, ...document.querySelectorAll('.image-filter'), ...document.querySelectorAll('input[name="color"]')].forEach(el => el.disabled = !enabled);
     undoBtn.disabled = history.length <= 1;
 }
 function saveState() { history.push(canvas.toDataURL()); if (history.length > 10) history.shift(); undoBtn.disabled = false; }
@@ -286,6 +288,45 @@ function applyCrop() {
     img.onload = () => { tempCtx.drawImage(img, x, y, width, height, 0, 0, width, height); currentImage = tempCanvas.toDataURL('image/jpeg'); renderCanvas(); };
     img.src = canvas.toDataURL();
 }
+
+// --- FUNCIONALIDAD COLLAGE ---
+function triggerCollageUpload() { collageInput.click(); }
+collageInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => { createCollage(event.target.result); collageInput.value = ''; };
+    reader.readAsDataURL(file);
+});
+function createCollage(secondImageSrc) {
+    if (!currentImage) return;
+    setButtonLoading(collageBtn, true, '');
+    const img1 = new Image();
+    const img2 = new Image();
+    let imagesLoaded = 0;
+    const onImageLoad = () => { imagesLoaded++; if (imagesLoaded === 2) performMerge(img1, img2); };
+    img1.onload = onImageLoad; img2.onload = onImageLoad;
+    img1.src = currentImage; img2.src = secondImageSrc;
+}
+function performMerge(img1, img2) {
+    saveState();
+    const scaleFactor = img1.height / img2.height;
+    const newWidth2 = img2.width * scaleFactor;
+    const tempCanvas = document.createElement('canvas');
+    const gap = 20;
+    tempCanvas.height = img1.height;
+    tempCanvas.width = img1.width + gap + newWidth2;
+    const tCtx = tempCanvas.getContext('2d');
+    tCtx.fillStyle = "#FFFFFF";
+    tCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+    tCtx.drawImage(img1, 0, 0);
+    tCtx.drawImage(img2, img1.width + gap, 0, newWidth2, img1.height);
+    currentImage = tempCanvas.toDataURL('image/jpeg', 0.95);
+    renderCanvas();
+    setButtonLoading(collageBtn, false, originalIconCollage);
+    showToast('Collage creado con éxito', 'success');
+}
+
 function downloadImage(format = 'png', quality = 1.0) {
     renderCanvas(); 
     setTimeout(() => { 
@@ -293,7 +334,28 @@ function downloadImage(format = 'png', quality = 1.0) {
         const requestNum = `${prefixInput.value}${requestNumberInput.value}`;
         link.download = `${requestNum}.${format}`;
         link.href = canvas.toDataURL(`image/${format}`, quality);
-        link.click(); 
+        link.click();
+        
+        // ========== REGISTRO AUTOMÁTICO EN FIREBASE ==========
+        const today = new Date().toISOString().split('T')[0];
+        const hora = new Date().toLocaleTimeString('es-ES');
+        const nuevoRegistro = requestNum + ' (' + hora + ')';
+        
+        database.ref('descargas/' + today + '/total').transaction(function(total) {
+            return (total || 0) + 1;
+        });
+        
+        database.ref('descargas/' + today + '/lista').transaction(function(listaActual) {
+            if (listaActual) {
+                return listaActual + '\n' + nuevoRegistro;
+            } else {
+                return nuevoRegistro;
+            }
+        }).catch(function(error) {
+            console.log('Error al registrar:', error);
+        });
+        // =====================================================
+        
     }, 100);
 }
 [...document.querySelectorAll('input[type="file"][data-slot]')].forEach(input => {
@@ -337,6 +399,7 @@ resetImageBtn.addEventListener('click', resetImage);
 undoBtn.addEventListener('click', undo);
 drawModeBtn.addEventListener('click', () => { isDrawing = !isDrawing; isCropping = false; drawModeBtn.classList.toggle('active', isDrawing); cropBtn.classList.remove('active'); canvas.style.cursor = isDrawing ? 'crosshair' : 'default'; });
 cropBtn.addEventListener('click', () => { isCropping = !isCropping; isDrawing = false; cropBtn.classList.toggle('active', isCropping); drawModeBtn.classList.remove('active'); canvas.style.cursor = isCropping ? 'crosshair' : 'default'; });
+collageBtn.addEventListener('click', triggerCollageUpload);
 downloadPngBtn.addEventListener('click', () => downloadImage('png'));
 downloadJpgBtn.addEventListener('click', () => downloadImage('jpeg', parseFloat(jpgQuality.value)));
 [prefixInput, requestNumberInput, fontSizeInput, positionSelect, logoSelect, ...document.querySelectorAll('input[name="color"]')].forEach(el => el.addEventListener('input', () => { renderCanvas(); saveSettings(); }));
