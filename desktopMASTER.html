@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EDITOR DE MUESTRAS - BUREAU VERITAS CPS LUGO (Master)</title>
+    <title>EDITOR DE MUESTRAS - LUGO (Master)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -37,7 +37,7 @@
         <header class="flex items-center justify-between p-4 border-b border-[var(--input-border-color)] flex-shrink-0">
              <h1 class="text-[var(--text-color)] text-lg font-bold tracking-tight">
                 <span style="color: var(--primary-color);">EDITOR DE CÁMARA</span>
-                <span class="text-[var(--text-secondary-color)]">BUREAU VERITAS CPS LUGO MASTER (ADRIÁN)</span>
+                <span class="text-[var(--text-secondary-color)]">LUGO MASTER (ADRIÁN)</span>
             </h1>
             <button id="themeToggle" class="p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]" title="Cambiar tema"></button>
         </header>
@@ -129,7 +129,7 @@ const firebaseConfig = { apiKey: "AIzaSyAbahVsQxI_HOz_yPtDlp4hXSdZO0dvRl4", auth
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
-const ADMIN_PASSWORD = "Bureau2025"; 
+const ADMIN_PASSWORD = "CamaraLugo2025";
 
 const get = id => document.getElementById(id);
 const channelIdInput = get('channelId'), connectBtn = get('connectBtn'), statusDiv = get('status');
