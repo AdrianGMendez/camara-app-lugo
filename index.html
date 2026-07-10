@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CÁMARA REMOTA LUGO</title>
+    <meta name="theme-color" content="#0b1120">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --page:#0b1120; --text:#e7eef8; --soft:#93a4bd;
+            --accent:#38bdf8; --accent-grad:linear-gradient(135deg,#22d3ee,#6366f1);
+            --accent-glow:rgba(56,189,248,.42);
+            --glass-bg:rgba(255,255,255,.06); --glass-brd:rgba(255,255,255,.14);
+            --glass-blur:blur(22px) saturate(150%);
+            --b1:#0ea5e9; --b2:#6366f1; --b3:#14b8a6;
+        }
+        * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+        html,body { height:100%; margin:0; }
+        body { font-family:'Spline Sans',system-ui,sans-serif; background:var(--page); color:var(--text);
+               display:flex; align-items:center; justify-content:center; padding:24px; overflow:hidden; }
+        .aurora { position:fixed; inset:-12%; z-index:-1; overflow:hidden; pointer-events:none; }
+        .blob { position:absolute; border-radius:50%; filter:blur(70px); opacity:.55; }
+        .b1 { width:60vw; height:60vw; background:var(--b1); top:-16vw; left:-14vw; animation:fl1 20s ease-in-out infinite; }
+        .b2 { width:52vw; height:52vw; background:var(--b2); bottom:-16vw; right:-14vw; animation:fl2 24s ease-in-out infinite; }
+        .b3 { width:40vw; height:40vw; background:var(--b3); top:44%; left:40%; animation:fl3 28s ease-in-out infinite; }
+        @keyframes fl1 { 50%{transform:translate(7vw,5vw) scale(1.1);} }
+        @keyframes fl2 { 50%{transform:translate(-6vw,-5vw) scale(1.08);} }
+        @keyframes fl3 { 50%{transform:translate(-5vw,4vw) scale(1.12);} }
+
+        .card { width:100%; max-width:520px; background:var(--glass-bg); border:1px solid var(--glass-brd);
+                border-radius:26px; padding:34px 30px; -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur);
+                box-shadow:0 24px 70px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.12); text-align:center; }
+        .logo { width:58px; height:58px; margin:0 auto 16px; border-radius:17px; display:grid; place-items:center;
+                background:var(--accent-grad); box-shadow:0 8px 22px var(--accent-glow); }
+        .logo svg { width:30px; height:30px; fill:none; stroke:#fff; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+        h1 { margin:0; font-size:1.6rem; font-weight:700; letter-spacing:-.01em; }
+        h1 .a { color:var(--accent); }
+        .sub { margin:6px 0 26px; color:var(--soft); font-size:.95rem; }
+        .grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+        @media (max-width:460px){ .grid { grid-template-columns:1fr; } }
+        .launch { display:flex; flex-direction:column; align-items:center; gap:10px; padding:22px 16px; border-radius:18px;
+                  text-decoration:none; color:var(--text); background:rgba(255,255,255,.05); border:1px solid var(--glass-brd);
+                  transition:transform .18s, border-color .18s, box-shadow .18s; }
+        .launch:hover { transform:translateY(-3px); border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); }
+        .launch .ico { width:52px; height:52px; border-radius:14px; display:grid; place-items:center; background:var(--accent-grad); box-shadow:0 6px 16px var(--accent-glow); }
+        .launch .ico svg { width:26px; height:26px; fill:none; stroke:#fff; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+        .launch b { font-size:1.05rem; font-weight:600; }
+        .launch span { font-size:.8rem; color:var(--soft); }
+        .master { display:inline-flex; align-items:center; gap:7px; margin-top:22px; font-size:.82rem; color:var(--soft);
+                  text-decoration:none; padding:8px 16px; border-radius:999px; border:1px solid var(--glass-brd); transition:.18s; }
+        .master:hover { color:var(--accent); border-color:var(--accent); }
+        .master svg { width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+    </style>
+</head>
+<body>
+    <div class="aurora" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+    <main class="card">
+        <div class="logo"><svg viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg></div>
+        <h1><span class="a">CÁMARA</span> REMOTA LUGO</h1>
+        <p class="sub">Selecciona una vista para empezar</p>
+        <div class="grid">
+            <a class="launch" href="desktop.html">
+                <span class="ico"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
+                <b>Escritorio</b>
+                <span>Editor de cámara</span>
+            </a>
+            <a class="launch" href="mobile.html">
+                <span class="ico"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2.5"/><line x1="12" y1="18" x2="12" y2="18"/></svg></span>
+                <b>Móvil</b>
+                <span>Captura y envío</span>
+            </a>
+        </div>
+        <a class="master" href="desktopMASTER.html"><svg viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 5 3.4 7.7 8 10 4.6-2.3 8-5 8-10V6l-8-4Z"/></svg>Acceso Master</a>
+    </main>
+</body>
+</html>
