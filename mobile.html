@@ -4,73 +4,129 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>CÁMARA REMOTA LUGO</title>
-    <!-- ... (el resto del head es idéntico) ... -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#121212">
+    <meta name="theme-color" content="#0b1120">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <style>
-        :root { /* Dark Theme */
-            --primary-color: #E4002B; --secondary-color: #6C757D; --background-color: #121212;
-            --surface-color: #1E1E1E; --input-border-color: #555555; --text-color: #EAEAEA;
+        /* ============ GLASS DESIGN TOKENS — mobile (dark default) ============ */
+        :root { /* Dark theme (default) */
+            color-scheme: dark;
+            --primary-color:#38bdf8; --secondary-color:#8ea0ba;
+            --background-color:#0b1120; --surface-color:transparent;
+            --input-border-color:rgba(255,255,255,.16); --text-color:#e7eef8;
+            --accent:#38bdf8; --accent-grad:linear-gradient(135deg,#22d3ee,#6366f1);
+            --accent-glow:rgba(56,189,248,.42);
+            --glass-bg:rgba(255,255,255,.07); --glass-strong:rgba(255,255,255,.12);
+            --glass-brd:rgba(255,255,255,.16); --glass-blur:blur(22px) saturate(150%);
+            --glass-sh:0 14px 44px rgba(0,0,0,.5); --glass-inner:inset 0 1px 0 rgba(255,255,255,.14);
+            --field-bg:rgba(255,255,255,.06); --field-brd:rgba(255,255,255,.18);
+            --text-secondary-color:#93a4bd;
+            --page:#0b1120; --b1:#0ea5e9; --b2:#6366f1; --b3:#14b8a6; --blob-op:.55;
+            --radius:22px;
         }
-        .light { /* Light Theme */
-            --secondary-color: #424242; --background-color: #F8F9FA; --surface-color: #FFFFFF;
-            --input-border-color: #CED4DA; --text-color: #212529;
+        .light {
+            color-scheme: light;
+            --secondary-color:#516079;
+            --background-color:#e8eef7; --surface-color:transparent;
+            --input-border-color:rgba(15,23,42,.14); --text-color:#0f172a;
+            --accent:#0ea5e9; --accent-grad:linear-gradient(135deg,#06b6d4,#3b82f6);
+            --accent-glow:rgba(56,189,248,.38);
+            --glass-bg:rgba(255,255,255,.55); --glass-strong:rgba(255,255,255,.72);
+            --glass-brd:rgba(255,255,255,.75); --glass-blur:blur(22px) saturate(155%);
+            --glass-sh:0 12px 36px rgba(15,23,42,.13); --glass-inner:inset 0 1px 0 rgba(255,255,255,.85);
+            --field-bg:rgba(255,255,255,.5); --field-brd:rgba(15,23,42,.14);
+            --text-secondary-color:#516079;
+            --page:#e8eef7; --b1:#38bdf8; --b2:#818cf8; --b3:#2dd4bf; --blob-op:.5;
         }
-        body { font-family: 'Spline Sans', sans-serif; background-color: var(--background-color); color: var(--text-color); -webkit-tap-highlight-color: transparent; }
-        .spinner { border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; width: 1.2em; height: 1.2em; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        #qrScannerContainer { background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
-        .toast-notification { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); z-index: 5001; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .toast-notification.show { bottom: 20px; }
-        #ack-overlay { transition: opacity 0.5s; }
+        body { font-family:'Spline Sans',sans-serif; background:var(--page); color:var(--text-color); -webkit-tap-highlight-color:transparent; transition:background-color .3s,color .3s; }
+
+        .aurora { position:fixed; inset:-12%; z-index:-1; overflow:hidden; pointer-events:none; }
+        .blob { position:absolute; border-radius:50%; filter:blur(66px); opacity:var(--blob-op); }
+        .b1 { width:80vw; height:80vw; background:var(--b1); top:-18vw; left:-24vw; animation:fl1 20s ease-in-out infinite; }
+        .b2 { width:70vw; height:70vw; background:var(--b2); bottom:-20vw; right:-24vw; animation:fl2 24s ease-in-out infinite; }
+        .b3 { width:56vw; height:56vw; background:var(--b3); top:40%; left:30%; animation:fl3 28s ease-in-out infinite; }
+        @keyframes fl1 { 50%{transform:translate(8vw,6vw) scale(1.1);} }
+        @keyframes fl2 { 50%{transform:translate(-7vw,-6vw) scale(1.08);} }
+        @keyframes fl3 { 50%{transform:translate(-6vw,4vw) scale(1.12);} }
+
+        .glass { background:var(--glass-bg); -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur); border:1px solid var(--glass-brd); border-radius:var(--radius); box-shadow:var(--glass-sh),var(--glass-inner); }
+        .accent-text { color:var(--accent); }
+        .text-soft { color:var(--text-secondary-color); }
+        .ic { width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round; stroke-linejoin:round; }
+        .logo-mark { width:42px; height:42px; border-radius:13px; display:grid; place-items:center; background:var(--accent-grad); color:#fff; box-shadow:0 6px 16px var(--accent-glow); flex-shrink:0; }
+
+        .field { background:var(--field-bg); border:1px solid var(--field-brd); color:var(--text-color); border-radius:14px; transition:.18s; }
+        .field::placeholder { color:var(--text-secondary-color); opacity:.85; }
+        .field:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); }
+
+        .btn-accent { background:var(--accent-grad); color:#fff; border:none; border-radius:14px; font-weight:700; box-shadow:0 6px 18px var(--accent-glow); transition:.18s; }
+        .btn-accent:active:not(:disabled) { transform:scale(.98); }
+        .btn-accent:disabled { opacity:.55; box-shadow:none; }
+
+        .btn-soft { background:var(--glass-strong); color:var(--text-color); border:1px solid var(--glass-brd); border-radius:14px; font-weight:600; -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur); transition:.18s; }
+        .btn-soft:active { transform:scale(.98); }
+
+        .icon-btn { width:44px; height:44px; border-radius:50%; display:grid; place-items:center; background:var(--glass-bg); border:1px solid var(--glass-brd); -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur); color:var(--text-color); transition:.18s; flex-shrink:0; }
+        .icon-btn:active { transform:scale(.94); }
+
+        .capture-drop { background:var(--glass-bg); -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur); border:2px dashed var(--glass-brd); border-radius:var(--radius); color:var(--text-secondary-color); transition:.18s; }
+        .capture-drop:active { border-color:var(--accent); color:var(--accent); }
+        #preview { border:1px solid var(--glass-brd); box-shadow:var(--glass-sh); }
+
+        .spinner { border:3px solid rgba(255,255,255,.35); border-top-color:#fff; border-radius:50%; width:1.2em; height:1.2em; animation:spin 1s linear infinite; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        #qrScannerContainer { background:rgba(6,10,20,.72); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); }
+        .toast-notification { position:fixed; bottom:-100px; left:50%; transform:translateX(-50%); z-index:5001; -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.18); box-shadow:0 12px 40px rgba(0,0,0,.4); transition:all .5s cubic-bezier(0.175,0.885,0.32,1.275); }
+        .toast-notification.show { bottom:24px; }
+        #ack-overlay { transition:opacity .5s; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
     </style>
 </head>
 <body class="min-h-screen">
-    <!-- ... (El HTML del body es exactamente el mismo que en la versión anterior) ... -->
+    <div class="aurora" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
     <div class="flex flex-col h-screen p-4 space-y-4">
-        <header class="flex items-center justify-between">
-            <h1 class="text-xl font-bold text-center flex-grow"><span class="text-[var(--primary-color)]">CÁMARA</span> REMOTA LUGO</h1>
-            <button id="themeToggle" class="p-2 rounded-full focus:outline-none focus:ring-2 ring-offset-2 ring-offset-[var(--background-color)] focus:ring-[var(--primary-color)]"></button>
+        <header class="flex items-center justify-between gap-3">
+            <span class="logo-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
+            <h1 class="text-xl font-bold tracking-tight text-center flex-grow"><span class="accent-text">CÁMARA</span> REMOTA LUGO</h1>
+            <button id="themeToggle" class="icon-btn focus:outline-none"></button>
         </header>
-        
-        <div class="p-4 rounded-lg bg-[var(--surface-color)] border border-[var(--input-border-color)]">
+
+        <div class="glass p-4">
             <div class="grid grid-cols-[1fr_auto_auto] gap-2">
-                <input type="number" id="channelId" placeholder="Código de 4 dígitos" class="w-full rounded-lg bg-transparent border border-[var(--input-border-color)] h-12 p-2">
-                <button id="qrScanBtn" class="h-12 w-14 rounded-lg bg-[var(--secondary-color)] text-white"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 mx-auto"><path d="M1.5 6.75a.75.75 0 01.75-.75h.75a.75.75 0 010 1.5H3a.75.75 0 01-.75-.75zM3 17.25a.75.75 0 00.75.75H4.5a.75.75 0 000-1.5H3.75a.75.75 0 00-.75.75zM17.25 18a.75.75 0 00-.75-.75h-.75a.75.75 0 000 1.5H16.5a.75.75 0 00.75-.75zM18 6.75a.75.75 0 00-.75-.75h-.75a.75.75 0 000 1.5H16.5a.75.75 0 00.75-.75zM9.75 6a.75.75 0 000 1.5h.75a.75.75 0 000-1.5h-.75zM9 9.75A.75.75 0 019.75 9h.75a.75.75 0 010 1.5h-.75A.75.75 0 019 9.75zM9.75 12.75a.75.75 0 000 1.5H10.5a.75.75 0 000-1.5h-.75zM9 15.75a.75.75 0 01.75-.75h.75a.75.75 0 010 1.5h-.75a.75.75 0 01-.75-.75zM6.75 9.75a.75.75 0 000 1.5h.75a.75.75 0 000-1.5h-.75zM6 12.75a.75.75 0 01.75-.75h.75a.75.75 0 010 1.5h-.75A.75.75 0 016 12.75zM6.75 15.75a.75.75 0 000 1.5h.75a.75.75 0 000-1.5h-.75zM12.75 6a.75.75 0 000 1.5h.75a.75.75 0 000-1.5h-.75zM12 9.75a.75.75 0 01.75-.75h.75a.75.75 0 010 1.5h-.75A.75.75 0 0112 9.75zM12.75 12.75a.75.75 0 000 1.5h.75a.75.75 0 000-1.5h-.75zM12 15.75a.75.75 0 01.75-.75h.75a.75.75 0 010 1.5h-.75a.75.75 0 01-.75-.75zM15 9.75a.75.75 0 01.75-.75h.75a.75.75 0 010 1.5h-.75A.75.75 0 0115 9.75zM15.75 12.75a.75.75 0 000 1.5h.75a.75.75 0 000-1.5h-.75zM15 15.75a.75.75 0 01.75-.75h.75a.75.75 0 010 1.5h-.75a.75.75 0 01-.75-.75z"/><path fill-rule="evenodd" d="M2.25 4.5A2.25 2.25 0 014.5 2.25h15A2.25 2.25 0 0121.75 4.5v15a2.25 2.25 0 01-2.25 2.25h-15A2.25 2.25 0 012.25 19.5v-15zm2.25-1.5a.75.75 0 00-.75.75v15c0 .414.336.75.75.75h15a.75.75 0 00.75-.75v-15a.75.75 0 00-.75-.75h-15z" clip-rule="evenodd" /></svg></button>
-                <button id="connectBtn" class="relative h-12 px-4 rounded-lg bg-[var(--primary-color)] text-white font-bold">Conectar</button>
+                <input type="number" id="channelId" placeholder="Código de 4 dígitos" class="field w-full h-12 px-3">
+                <button id="qrScanBtn" class="btn-soft h-12 w-14 flex items-center justify-center"><svg class="ic" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg></button>
+                <button id="connectBtn" class="btn-accent relative h-12 px-5">Conectar</button>
             </div>
-            <div id="status" class="text-center text-sm font-semibold mt-3 text-gray-400">Desconectado</div>
+            <div id="status" class="text-center text-sm font-semibold mt-3 text-soft">Desconectado</div>
         </div>
-        
+
         <div id="captureArea" class="hidden flex-1 flex-col items-center justify-center space-y-4">
-            <img id="preview" class="w-48 h-48 object-cover rounded-lg border-2 border-[var(--input-border-color)]">
-            <button id="sendBtn" class="w-full h-12 bg-[var(--primary-color)] text-white font-bold rounded-lg relative">Enviar Imagen</button>
-            <button id="discardBtn" class="w-full h-12 bg-[var(--secondary-color)] text-white font-bold rounded-lg">Descartar</button>
+            <img id="preview" class="w-48 h-48 object-cover rounded-2xl">
+            <button id="sendBtn" class="btn-accent w-full h-12 relative">Enviar Imagen</button>
+            <button id="discardBtn" class="btn-soft w-full h-12">Descartar</button>
         </div>
-        <label for="fileInput" id="captureLabel" class="hidden h-24 bg-[var(--surface-color)] border-2 border-dashed border-[var(--input-border-color)] rounded-lg flex items-center justify-center text-gray-400">
-            Toca para capturar...
+        <label for="fileInput" id="captureLabel" class="capture-drop hidden h-28 flex-col items-center justify-center gap-2 font-medium">
+            <svg class="ic" viewBox="0 0 24 24" style="width:30px;height:30px"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg>
+            Toca para capturar…
         </label>
         <input type="file" id="fileInput" accept="image/*" capture="environment" class="hidden">
     </div>
 
     <!-- Confirmation Overlay -->
-    <div id="ack-overlay" class="pointer-events-none fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+    <div id="ack-overlay" class="pointer-events-none fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 opacity-0">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32 text-green-400 drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
     </div>
 
     <div id="qrScannerContainer" class="fixed inset-0 items-center justify-center hidden z-50">
-        <div id="qr-reader" class="relative w-[90%] max-w-[500px] bg-[var(--surface-color)] p-4 rounded-lg shadow-lg">
-            <button id="closeQrScanner" class="absolute -top-3 -right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center text-red-500 text-2xl font-bold">×</button>
-        </div>
+        <div id="qr-reader" class="glass relative w-[90%] max-w-[500px] p-4"></div>
+        <button id="closeQrScanner" class="icon-btn absolute top-6 right-6 !text-red-400 text-2xl font-bold z-50">×</button>
     </div>
-    <div id="toast" class="toast-notification bg-gray-800 text-white py-3 px-6 rounded-full shadow-lg"></div>
+    <div id="toast" class="toast-notification bg-slate-900/90 text-white py-3 px-6 rounded-full"></div>
 
 <script>
 const firebaseConfig = { apiKey: "AIzaSyAbahVsQxI_HOz_yPtDlp4hXSdZO0dvRl4", authDomain: "camara-app-lugo.firebaseapp.com", databaseURL: "https://camara-app-lugo-default-rtdb.europe-west1.firebasedatabase.app", projectId: "camara-app-lugo", storageBucket: "camara-app-lugo.appspot.com", messagingSenderId: "437448426207", appId: "1:437448426207:web:a9dbecc8cbdb77d0c4df6a" };
@@ -98,7 +154,7 @@ function showAck() { vibrate(100); ackOverlay.style.opacity = 1; setTimeout(() =
 
 function optimizeAndResizeImage(file, callback) {
     const MAX_WIDTH = 1280;
-    const QUALITY = 0.85; 
+    const QUALITY = 0.85;
     const reader = new FileReader();
     reader.onload = (e) => {
         const img = new Image();
@@ -110,7 +166,7 @@ function optimizeAndResizeImage(file, callback) {
             canvas.width = width; canvas.height = height;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
-            
+
             // *** LÍNEA CORREGIDA: Forzar la conversión a JPEG ***
             const dataUrl = canvas.toDataURL('image/jpeg', QUALITY);
             callback(dataUrl);
@@ -127,7 +183,7 @@ function connectToChannel() {
     if (!channelId || channelId.length !== 4) { showToast("Introduce un código válido de 4 dígitos"); return; }
     setButtonLoading(connectBtn, true, 'Conectar');
     currentChannelRef = database.ref('channels/' + channelId);
-    
+
     ackListener = currentChannelRef.child('ack').on('value', (snapshot) => {
         if (snapshot.exists() && snapshot.val() === true) { showAck(); currentChannelRef.child('ack').remove(); }
     });
@@ -184,8 +240,8 @@ qrScanBtn.addEventListener('click', () => {
 });
 closeQrScanner.addEventListener('click', () => {
     vibrate();
-    if (html5QrcodeScanner && html5QrcodeScanner.getState() === 2) { 
-        html5QrcodeScanner.stop().catch(err => {}); 
+    if (html5QrcodeScanner && html5QrcodeScanner.getState() === 2) {
+        html5QrcodeScanner.stop().catch(err => {});
     }
     qrScannerContainer.style.display = 'none';
 });

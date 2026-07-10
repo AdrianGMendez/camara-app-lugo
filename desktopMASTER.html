@@ -6,119 +6,247 @@
     <title>EDITOR DE MUESTRAS - LUGO (Master)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>tailwind.config = { darkMode: 'class' };</script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <style>
-        :root { /* Light Theme */
-            --primary-color: #E4002B; --secondary-color: #424242; --background-color: #F8F9FA;
-            --surface-color: #FFFFFF; --input-border-color: #CED4DA; --text-color: #212529;
-            --text-secondary-color: #6C757D; --success-color: #198754; --danger-color: #DC3545;
+        /* ============ GLASS DESIGN TOKENS — MASTER (violet accent) ============ */
+        :root { /* Light theme (default) */
+            color-scheme: light;
+            --primary-color:#7c3aed; --secondary-color:#64748b;
+            --background-color:#eceafe; --surface-color:transparent;
+            --input-border-color:rgba(15,23,42,.14); --text-color:#0f172a;
+            --text-secondary-color:#516079; --success-color:#0d9488; --danger-color:#e11d48;
+            --accent:#7c3aed; --accent-grad:linear-gradient(135deg,#8b5cf6,#6366f1);
+            --accent-glow:rgba(139,92,246,.38);
+            --glass-bg:rgba(255,255,255,.55); --glass-strong:rgba(255,255,255,.72);
+            --glass-brd:rgba(255,255,255,.75); --glass-blur:blur(22px) saturate(155%);
+            --glass-sh:0 12px 36px rgba(15,23,42,.13); --glass-inner:inset 0 1px 0 rgba(255,255,255,.85);
+            --field-bg:rgba(255,255,255,.5); --field-brd:rgba(15,23,42,.14);
+            --page:#eceafe; --b1:#a78bfa; --b2:#818cf8; --b3:#22d3ee; --blob-op:.5;
+            --radius:20px;
         }
-        .dark { /* Dark Theme */
-            --secondary-color: #A0A0A0; --background-color: #121212; --surface-color: #1E1E1E;
-            --input-border-color: #555555; --text-color: #EAEAEA; --text-secondary-color: #A0A0A0;
+        .dark {
+            color-scheme: dark;
+            --secondary-color:#8ea0ba;
+            --background-color:#0c0a18; --surface-color:transparent;
+            --input-border-color:rgba(255,255,255,.16); --text-color:#e7eef8;
+            --text-secondary-color:#a29bc7; --success-color:#2dd4bf; --danger-color:#fb7185;
+            --accent:#a78bfa; --accent-grad:linear-gradient(135deg,#a78bfa,#6366f1);
+            --accent-glow:rgba(139,92,246,.45);
+            --glass-bg:rgba(255,255,255,.07); --glass-strong:rgba(255,255,255,.12);
+            --glass-brd:rgba(255,255,255,.16); --glass-blur:blur(24px) saturate(150%);
+            --glass-sh:0 14px 44px rgba(0,0,0,.5); --glass-inner:inset 0 1px 0 rgba(255,255,255,.14);
+            --field-bg:rgba(255,255,255,.06); --field-brd:rgba(255,255,255,.16);
+            --page:#0c0a18; --b1:#7c3aed; --b2:#4f46e5; --b3:#0891b2; --blob-op:.55;
         }
-        body { font-family: 'Spline Sans', sans-serif; background-color: var(--background-color); color: var(--text-color); transition: background-color 0.3s, color 0.3s; }
-        .spinner { border: 3px solid rgba(0,0,0,0.2); border-radius: 50%; border-top-color: var(--primary-color); width: 1.2em; height: 1.2em; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .tool-btn.active { background-color: var(--primary-color) !important; color: white !important; }
-        .toast-notification { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); z-index: 5001; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .toast-notification.show { bottom: 20px; }
-        .cropping #canvas { cursor: crosshair; }
-        .logo-preview { max-width: 80px; max-height: 30px; object-fit: contain; }
+        * { -webkit-tap-highlight-color: transparent; }
+        body { font-family:'Spline Sans',sans-serif; background:var(--page); color:var(--text-color); transition:background-color .3s,color .3s; }
+
+        .aurora { position:fixed; inset:-12%; z-index:-1; overflow:hidden; pointer-events:none; }
+        .blob { position:absolute; border-radius:50%; filter:blur(74px); opacity:var(--blob-op); }
+        .b1 { width:46vw; height:46vw; background:var(--b1); top:-9vw; left:-6vw; animation:fl1 20s ease-in-out infinite; }
+        .b2 { width:42vw; height:42vw; background:var(--b2); bottom:-12vw; right:-6vw; animation:fl2 24s ease-in-out infinite; }
+        .b3 { width:32vw; height:32vw; background:var(--b3); top:36%; left:46%; animation:fl3 28s ease-in-out infinite; }
+        @keyframes fl1 { 50%{transform:translate(6vw,4vw) scale(1.1);} }
+        @keyframes fl2 { 50%{transform:translate(-5vw,-4vw) scale(1.08);} }
+        @keyframes fl3 { 50%{transform:translate(-4vw,3vw) scale(1.12);} }
+
+        .glass { background:var(--glass-bg); -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur); border:1px solid var(--glass-brd); border-radius:var(--radius); box-shadow:var(--glass-sh),var(--glass-inner); }
+        .topbar { background:var(--glass-strong); -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur); border-bottom:1px solid var(--glass-brd); box-shadow:0 4px 24px rgba(15,23,42,.06); }
+        .panel-label { font-weight:600; font-size:.68rem; letter-spacing:.09em; text-transform:uppercase; color:var(--text-secondary-color); }
+        .accent-text { color:var(--accent); }
+        .text-soft { color:var(--text-secondary-color); }
+        .ic { width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round; stroke-linejoin:round; }
+        .logo-mark { width:38px; height:38px; border-radius:12px; display:grid; place-items:center; background:var(--accent-grad); color:#fff; box-shadow:0 6px 16px var(--accent-glow); flex-shrink:0; }
+        .logo-mark .ic { width:22px; height:22px; }
+        .panel-head { display:flex; align-items:center; gap:.5rem; font-weight:600; font-size:.68rem; letter-spacing:.09em; text-transform:uppercase; color:var(--text-secondary-color); }
+        .panel-head .ic { width:15px; height:15px; color:var(--accent); }
+        .status-pill { display:inline-flex; align-items:center; gap:.45rem; font-size:.8rem; font-weight:600; padding:.32rem .8rem; border-radius:999px; background:var(--field-bg); border:1px solid var(--field-brd); }
+        .status-pill::before { content:""; width:8px; height:8px; border-radius:50%; background:currentColor; box-shadow:0 0 8px currentColor; }
+
+        .master-badge { font-size:.62rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#fff; background:var(--accent-grad); padding:.2rem .55rem; border-radius:999px; box-shadow:0 4px 12px var(--accent-glow); }
+
+        .field { background:var(--field-bg); border:1px solid var(--field-brd); color:var(--text-color); border-radius:12px; transition:.18s; }
+        .field::placeholder { color:var(--text-secondary-color); opacity:.8; }
+        .field:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); }
+        select.field option { background:var(--page); color:var(--text-color); }
+
+        .btn-accent { background:var(--accent-grad); color:#fff; border:none; border-radius:12px; font-weight:700; box-shadow:0 6px 18px var(--accent-glow); transition:.18s; }
+        .btn-accent:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 10px 26px var(--accent-glow); }
+        .btn-accent:active:not(:disabled) { transform:translateY(0); }
+        .btn-accent:disabled { opacity:.5; box-shadow:none; filter:grayscale(.35); cursor:not-allowed; }
+
+        .btn-soft { background:var(--glass-strong); color:var(--text-color); border:1px solid var(--glass-brd); border-radius:12px; font-weight:600; -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur); transition:.18s; }
+        .btn-soft:hover:not(:disabled) { border-color:var(--accent); color:var(--accent); }
+        .btn-soft:disabled { opacity:.5; cursor:not-allowed; }
+
+        .btn-admin { background:rgba(225,29,72,.1); color:var(--danger-color); border:1px solid rgba(225,29,72,.35); border-radius:12px; font-weight:700; -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur); transition:.18s; }
+        .btn-admin:hover { background:var(--danger-color); color:#fff; box-shadow:0 6px 18px rgba(225,29,72,.4); }
+
+        .icon-btn { width:42px; height:42px; border-radius:50%; display:grid; place-items:center; background:var(--glass-bg); border:1px solid var(--glass-brd); -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur); color:var(--text-color); transition:.18s; }
+        .icon-btn:hover { color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); }
+
+        .tool-btn { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.35rem; padding:.7rem .4rem; background:var(--glass-bg); border:1px solid var(--glass-brd); border-radius:14px; color:var(--text-secondary-color); -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur); transition:.18s; }
+        .tool-btn span { font-size:.66rem; font-weight:600; }
+        .tool-btn .ic { width:22px; height:22px; }
+        .tool-btn:hover:not(:disabled) { color:var(--accent); border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); }
+        .tool-btn:disabled { opacity:.4; cursor:not-allowed; }
+        .tool-btn.active { background:var(--accent-grad) !important; color:#fff !important; border-color:transparent; box-shadow:0 6px 16px var(--accent-glow); }
+
+        .logo-drop { border:1.5px dashed var(--field-brd); border-radius:12px; background:var(--field-bg); transition:.18s; }
+        .logo-drop:hover { border-color:var(--accent); }
+
+        .swatch { border:2px solid var(--glass-brd); box-shadow:0 2px 6px rgba(15,23,42,.15); }
+        input[name="color"].swatch:checked { box-shadow:0 0 0 3px var(--page),0 0 0 5px var(--accent); }
+
+        input[type=range] { -webkit-appearance:none; appearance:none; height:6px; border-radius:999px; background:var(--field-bg); border:1px solid var(--field-brd); }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:var(--accent-grad); box-shadow:0 2px 8px var(--accent-glow); cursor:pointer; border:2px solid rgba(255,255,255,.85); }
+        input[type=range]::-moz-range-thumb { width:16px; height:16px; border:none; border-radius:50%; background:var(--accent); cursor:pointer; }
+        input[type=range]:disabled { opacity:.45; }
+
+        .toggle { position:relative; border:1px solid var(--field-brd); background:var(--field-bg); transition:.2s; }
+        .toggle:checked { background:var(--accent-grad); border-color:transparent; }
+        .toggle::before { content:""; position:absolute; top:1px; left:1px; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.35); transition:.2s; }
+        .toggle:checked::before { transform:translateX(20px); }
+
+        .stage { background:radial-gradient(circle at 50% 38%, var(--glass-bg), transparent 72%); }
+        #canvas { border-radius:14px; box-shadow:0 26px 64px rgba(0,0,0,.3); background:#fff; }
+        #qrCanvas { border-radius:12px; }
+
+        .spinner { border:3px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; width:1.2em; height:1.2em; animation:spin 1s linear infinite; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        .cropping #canvas { cursor:crosshair; }
+        .logo-preview { max-width:80px; max-height:30px; object-fit:contain; }
+
+        .toast-notification { position:fixed; bottom:-100px; left:50%; transform:translateX(-50%); z-index:5001; -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.18); box-shadow:0 12px 40px rgba(0,0,0,.35); transition:all .5s cubic-bezier(0.175,0.885,0.32,1.275); }
+        .toast-notification.show { bottom:24px; }
+        aside::-webkit-scrollbar { width:8px; }
+        aside::-webkit-scrollbar-thumb { background:var(--glass-brd); border-radius:99px; }
+
+        /* ===== WOW: galería en vivo + aviso + PDF ===== */
+        .stage { position:relative; }
+        .stage:has(#filmstrip .thumb) { padding-bottom:88px; }
+        .filmstrip { position:absolute; left:0; right:0; bottom:0; display:flex; gap:.5rem; padding:.6rem .8rem; overflow-x:auto; background:var(--glass-strong); -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur); border-top:1px solid var(--glass-brd); z-index:5; }
+        .filmstrip:empty { display:none; }
+        .thumb { position:relative; height:64px; width:64px; flex-shrink:0; border-radius:10px; overflow:hidden; cursor:pointer; border:2px solid transparent; box-shadow:0 4px 12px rgba(0,0,0,.25); transition:transform .15s; }
+        .thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+        .thumb:hover { transform:translateY(-2px); }
+        .thumb.active { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); }
+        .thumb .badge { position:absolute; top:1px; left:4px; font-size:.6rem; font-weight:700; color:#fff; text-shadow:0 1px 2px #000; }
+        @keyframes thumbIn { from{ transform:scale(.6); opacity:0; } to{ transform:scale(1); opacity:1; } }
+        .thumb.new { animation:thumbIn .35s cubic-bezier(0.175,0.885,0.32,1.275); }
+        @keyframes rxpulse { 0%{ box-shadow:0 26px 64px rgba(0,0,0,.3),0 0 0 0 var(--accent-glow); } 30%{ box-shadow:0 26px 64px rgba(0,0,0,.3),0 0 0 12px var(--accent-glow); } 100%{ box-shadow:0 26px 64px rgba(0,0,0,.3),0 0 0 0 rgba(0,0,0,0); } }
+        #canvas.rx { animation:rxpulse .75s ease-out; }
+        .btn-pdf { display:inline-flex; align-items:center; gap:.35rem; font-size:.72rem; font-weight:600; padding:.3rem .75rem; border-radius:999px; background:var(--field-bg); border:1px solid var(--field-brd); color:var(--text-secondary-color); cursor:pointer; transition:.18s; }
+        .btn-pdf:hover:not(:disabled) { color:var(--accent); border-color:var(--accent); }
+        .btn-pdf:disabled { opacity:.4; cursor:not-allowed; }
     </style>
 </head>
 <body class="min-h-screen">
+    <div class="aurora" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
     <div class="flex flex-col h-screen">
         <!-- HEADER -->
-        <header class="flex items-center justify-between p-4 border-b border-[var(--input-border-color)] flex-shrink-0">
-             <h1 class="text-[var(--text-color)] text-lg font-bold tracking-tight">
-                <span style="color: var(--primary-color);">EDITOR DE CÁMARA</span>
-                <span class="text-[var(--text-secondary-color)]">LUGO MASTER (ADRIÁN)</span>
-            </h1>
-            <button id="themeToggle" class="p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]" title="Cambiar tema"></button>
+        <header class="topbar flex items-center justify-between px-6 py-4 flex-shrink-0">
+             <div class="flex items-center gap-3">
+                <span class="logo-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
+                <h1 class="text-lg font-bold tracking-tight flex items-center gap-3">
+                   <span><span class="accent-text">EDITOR DE CÁMARA</span> <span class="text-soft">LUGO (ADRIÁN)</span></span>
+                   <span class="master-badge">Master</span>
+                </h1>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="muteBtn" class="icon-btn" title="Silenciar aviso de nueva imagen"></button>
+                <button id="themeToggle" class="icon-btn" title="Cambiar tema"></button>
+            </div>
         </header>
 
         <main class="flex flex-1 overflow-hidden">
             <!-- Controls Pane -->
-            <aside class="w-96 p-4 overflow-y-auto border-r border-[var(--input-border-color)] flex-shrink-0">
+            <aside class="w-96 p-5 overflow-y-auto flex-shrink-0">
                 <div class="space-y-4">
                     <!-- Connection -->
-                    <div class="p-4 rounded-lg bg-[var(--surface-color)] border border-[var(--input-border-color)]">
-                        <label class="font-semibold mb-2 block">Conexión</label>
-                        <div class="flex items-center gap-2"><input type="number" id="channelId" placeholder="Código de 4 dígitos" class="w-full rounded-lg text-[var(--text-color)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] border border-[var(--input-border-color)] bg-transparent h-10 p-2"><button id="connectBtn" class="relative flex-shrink-0 h-10 px-4 rounded-lg bg-[var(--primary-color)] text-white font-bold disabled:bg-gray-400">Conectar</button></div>
-                        <div id="qrContainer" class="mt-4 text-center hidden"><canvas id="qrCanvas"></canvas><p class="text-xs text-[var(--text-secondary-color)] mt-2">Escanea este código desde el móvil</p></div>
-                        <div id="status" class="text-center text-sm font-semibold mt-3">Desconectado</div>
+                    <div class="glass p-5">
+                        <div class="panel-head mb-3"><svg class="ic" viewBox="0 0 24 24"><path d="M9 17H7A5 5 0 0 1 7 7h2"/><path d="M15 7h2a5 5 0 0 1 0 10h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Conexión</div>
+                        <div class="flex items-center gap-2"><input type="number" id="channelId" placeholder="Código de 4 dígitos" class="field w-full focus:outline-none h-11 px-3"><button id="connectBtn" class="btn-accent relative flex-shrink-0 h-11 px-5">Conectar</button></div>
+                        <div id="qrContainer" class="mt-4 text-center hidden"><canvas id="qrCanvas"></canvas><p class="text-xs text-soft mt-2">Escanea este código desde el móvil</p></div>
+                        <div class="text-center mt-3"><span id="status" class="status-pill">Desconectado</span></div>
                     </div>
 
                     <!-- Image Tools -->
-                    <div class="p-4 rounded-lg bg-[var(--surface-color)] border border-[var(--input-border-color)]">
-                        <label class="font-semibold mb-2 block">Herramientas</label>
-                         <div class="grid grid-cols-5 gap-2 text-center">
-                            <button id="undoBtn" title="Deshacer" class="tool-btn p-2 rounded-lg text-[var(--secondary-color)] bg-gray-100 dark:bg-gray-700 disabled:opacity-50" disabled><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8a5 5 0 0 1 0 10H9" /></svg></button>
-                            <button id="rotateBtn" title="Rotar" class="tool-btn p-2 rounded-lg text-[var(--secondary-color)] bg-gray-100 dark:bg-gray-700 disabled:opacity-50" disabled><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5M4 20h5v-5M20 4h-5v5" /></svg></button>
-                            <button id="cropBtn" title="Recortar" class="tool-btn p-2 rounded-lg text-[var(--secondary-color)] bg-gray-100 dark:bg-gray-700 disabled:opacity-50" disabled><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.121 14.121L19 19M4.879 4.879L9.75 9.75m-4.871 0L19 4.879M4.879 19L19 9.75" /></svg></button>
-                            <button id="drawModeBtn" title="Dibujar" class="tool-btn p-2 rounded-lg text-[var(--secondary-color)] bg-gray-100 dark:bg-gray-700 disabled:opacity-50" disabled><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button>
-                            <button id="resetImageBtn" title="Restaurar Imagen Original" class="tool-btn p-2 rounded-lg text-[var(--secondary-color)] bg-gray-100 dark:bg-gray-700 disabled:opacity-50" disabled><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5M4 20h5v-5M20 4h-5v5" /></svg></button>
+                    <div class="glass p-5">
+                        <div class="panel-head mb-3"><svg class="ic" viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="2" y1="14" x2="6" y2="14"/><line x1="10" y1="8" x2="14" y2="8"/><line x1="18" y1="16" x2="22" y2="16"/></svg>Herramientas</div>
+                         <div class="grid grid-cols-3 gap-2">
+                            <button id="undoBtn" title="Deshacer" class="tool-btn" disabled><svg class="ic" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H10"/></svg><span>Deshacer</span></button>
+                            <button id="rotateBtn" title="Rotar" class="tool-btn" disabled><svg class="ic" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v5h-5"/></svg><span>Rotar</span></button>
+                            <button id="cropBtn" title="Recortar" class="tool-btn" disabled><svg class="ic" viewBox="0 0 24 24"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg><span>Recortar</span></button>
+                            <button id="drawModeBtn" title="Dibujar" class="tool-btn" disabled><svg class="ic" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span>Dibujar</span></button>
+                            <button id="resetImageBtn" title="Restaurar Imagen Original" class="tool-btn" disabled><svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg><span>Restaurar</span></button>
                          </div>
                    </div>
 
                     <!-- Nº de Registro -->
-                    <div class="p-4 rounded-lg bg-[var(--surface-color)] border border-[var(--input-border-color)]">
-                        <label class="font-semibold mb-2 block">Nº de Registro</label>
+                    <div class="glass p-5">
+                        <div class="panel-head mb-3"><svg class="ic" viewBox="0 0 24 24"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>Nº de Registro</div>
                         <div class="flex items-center gap-2">
-                             <input type="text" id="prefixInput" value="24-" class="w-16 rounded-lg text-center text-[var(--text-color)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] border border-[var(--input-border-color)] bg-transparent h-10 p-2" disabled>
-                             <input type="text" id="requestNumberInput" placeholder="00001" class="flex-grow w-full min-w-0 rounded-lg text-[var(--text-color)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] border border-[var(--input-border-color)] bg-transparent h-10 p-2" disabled>
-                             <button id="incrementBtn" title="Incrementar número" class="flex-shrink-0 flex items-center justify-center rounded-lg h-10 w-10 bg-[var(--secondary-color)] text-white font-bold" disabled>+</button>
+                             <input type="text" id="prefixInput" value="24-" class="field w-16 text-center focus:outline-none h-11 px-2" disabled>
+                             <input type="text" id="requestNumberInput" placeholder="00001" class="field flex-grow w-full min-w-0 focus:outline-none h-11 px-3" disabled>
+                             <button id="incrementBtn" title="Incrementar número" class="btn-soft flex-shrink-0 flex items-center justify-center h-11 w-11 text-lg" disabled>+</button>
                         </div>
-                        <div class="grid grid-cols-2 gap-4 mt-2">
-                             <div><label for="fontSizeInput" class="text-xs font-semibold">Tamaño</label><input type="range" id="fontSizeInput" min="12" max="500" value="150" class="w-full" disabled></div>
-                             <div><label class="text-xs font-semibold block">Color</label><div class="flex gap-2 mt-1"><input type="radio" name="color" data-color="white" class="appearance-none w-6 h-6 bg-white rounded-full cursor-pointer checked:ring-2 checked:ring-offset-2 checked:ring-[var(--primary-color)]" disabled><input type="radio" name="color" data-color="black" class="appearance-none w-6 h-6 bg-black rounded-full cursor-pointer checked:ring-2 checked:ring-offset-2 checked:ring-[var(--primary-color)]" disabled><input type="radio" name="color" data-color="#E4002B" class="appearance-none w-6 h-6 bg-[var(--primary-color)] rounded-full cursor-pointer checked:ring-2 checked:ring-offset-2 checked:ring-[var(--primary-color)]" disabled></div></div>
+                        <div class="grid grid-cols-2 gap-4 mt-3">
+                             <div><label for="fontSizeInput" class="text-xs panel-label">Tamaño</label><input type="range" id="fontSizeInput" min="12" max="500" value="150" class="w-full mt-2" disabled></div>
+                             <div><label class="text-xs panel-label block">Color</label><div class="flex gap-2 mt-2"><input type="radio" name="color" data-color="white" class="swatch appearance-none w-6 h-6 bg-white rounded-full cursor-pointer" disabled><input type="radio" name="color" data-color="black" class="swatch appearance-none w-6 h-6 bg-black rounded-full cursor-pointer" disabled><input type="radio" name="color" data-color="#E4002B" class="swatch appearance-none w-6 h-6 bg-[#E4002B] rounded-full cursor-pointer" disabled></div></div>
                         </div>
-                        <div class="mt-2"><label for="positionSelect" class="text-xs font-semibold">Posición</label><select id="positionSelect" class="w-full mt-1 rounded-lg text-[var(--text-color)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] border border-[var(--input-border-color)] bg-transparent h-10 p-2" disabled></select></div>
+                        <div class="mt-3"><label for="positionSelect" class="text-xs panel-label">Posición</label><select id="positionSelect" class="field w-full mt-2 focus:outline-none h-11 px-3" disabled></select></div>
                     </div>
-                    
+
                     <!-- Branding -->
-                    <div class="p-4 rounded-lg bg-[var(--surface-color)] border border-[var(--input-border-color)]">
-                        <label class="font-semibold mb-2 block">Branding</label>
+                    <div class="glass p-5">
+                        <div class="panel-head mb-3"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.5-3.5L9 20"/></svg>Branding</div>
                         <div class="grid grid-cols-3 gap-2 mb-2">
-                            <label for="logoUpload1" class="relative border-2 border-dashed border-[var(--input-border-color)] rounded-lg h-12 flex items-center justify-center cursor-pointer"><img id="logo-preview-1" class="logo-preview hidden"><span id="logo-text-1" class="text-xs text-[var(--text-secondary-color)]">Logo 1</span></label>
-                            <label for="logoUpload2" class="relative border-2 border-dashed border-[var(--input-border-color)] rounded-lg h-12 flex items-center justify-center cursor-pointer"><img id="logo-preview-2" class="logo-preview hidden"><span id="logo-text-2" class="text-xs text-[var(--text-secondary-color)]">Logo 2</span></label>
-                            <label for="logoUpload3" class="relative border-2 border-dashed border-[var(--input-border-color)] rounded-lg h-12 flex items-center justify-center cursor-pointer"><img id="logo-preview-3" class="logo-preview hidden"><span id="logo-text-3" class="text-xs text-[var(--text-secondary-color)]">Logo 3</span></label>
+                            <label for="logoUpload1" class="logo-drop relative h-12 flex items-center justify-center cursor-pointer"><img id="logo-preview-1" class="logo-preview hidden"><span id="logo-text-1" class="text-xs text-soft">Logo 1</span></label>
+                            <label for="logoUpload2" class="logo-drop relative h-12 flex items-center justify-center cursor-pointer"><img id="logo-preview-2" class="logo-preview hidden"><span id="logo-text-2" class="text-xs text-soft">Logo 2</span></label>
+                            <label for="logoUpload3" class="logo-drop relative h-12 flex items-center justify-center cursor-pointer"><img id="logo-preview-3" class="logo-preview hidden"><span id="logo-text-3" class="text-xs text-soft">Logo 3</span></label>
                         </div>
                         <input type="file" id="logoUpload1" class="hidden" accept="image/png, image/jpeg" data-slot="1">
                         <input type="file" id="logoUpload2" class="hidden" accept="image/png, image/jpeg" data-slot="2">
                         <input type="file" id="logoUpload3" class="hidden" accept="image/png, image/jpeg" data-slot="3">
                         <div class="flex items-center mt-2">
-                            <select id="logoSelect" class="flex-grow w-full rounded-lg text-[var(--text-color)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] border border-[var(--input-border-color)] bg-transparent h-10 p-2 text-sm" disabled><option value="none">No usar logo</option></select>
+                            <select id="logoSelect" class="field flex-grow w-full focus:outline-none h-11 px-3 text-sm" disabled><option value="none">No usar logo</option></select>
                         </div>
                     </div>
-                    
+
                     <!-- Acciones -->
-                    <div class="p-4 rounded-lg bg-[var(--surface-color)] border border-[var(--input-border-color)] space-y-2">
-                         <label class="font-semibold mb-1 block">Acciones</label>
-                         <div class="flex items-center justify-between bg-gray-100 dark:bg-gray-700 p-2 rounded-lg">
+                    <div class="glass p-5 space-y-3">
+                         <div class="panel-head mb-1"><svg class="ic" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Acciones</div>
+                         <div class="flex items-center justify-between px-3 py-2.5 rounded-xl" style="background:var(--field-bg);border:1px solid var(--field-brd);">
                             <label for="batchModeToggle" class="text-sm font-medium">Modo Ráfaga (Auto-Descarga)</label>
-                            <input type="checkbox" id="batchModeToggle" class="h-5 w-10 rounded-full appearance-none bg-gray-300 dark:bg-gray-600 checked:bg-[var(--primary-color)] transition duration-200" disabled>
+                            <input type="checkbox" id="batchModeToggle" class="toggle h-5 w-10 rounded-full appearance-none cursor-pointer" disabled>
                          </div>
-                         <button id="downloadPngBtn" class="w-full h-10 bg-[var(--primary-color)] text-white font-bold text-sm rounded-lg disabled:bg-gray-400" disabled>Descargar PNG (Alta Calidad)</button>
+                         <button id="downloadPngBtn" class="btn-accent w-full h-11 text-sm" disabled>Descargar PNG (Alta Calidad)</button>
                          <div class="flex items-center gap-2">
-                             <button id="downloadJpgBtn" class="flex-grow w-full h-10 bg-[var(--secondary-color)] text-white font-bold text-sm rounded-lg disabled:bg-gray-400" disabled>Descargar JPG</button>
+                             <button id="downloadJpgBtn" class="btn-soft flex-grow w-full h-11 text-sm" disabled>Descargar JPG</button>
                              <input type="range" id="jpgQuality" min="0.1" max="1" value="0.8" step="0.1" class="w-24" title="Calidad JPG" disabled>
                          </div>
-                         <button id="adminClearDbBtn" class="w-full h-10 bg-gray-800 dark:bg-gray-600 text-white font-bold text-sm rounded-lg">Admin: Limpiar Base de Datos</button>
+                         <div class="flex justify-end"><button id="downloadPdfBtn" class="btn-pdf" disabled title="Descargar como PDF (imagen + nº de registro + fecha)"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>PDF</button></div>
+                         <button id="adminClearDbBtn" class="btn-admin w-full h-11 text-sm flex items-center justify-center gap-2"><svg class="ic" viewBox="0 0 24 24" style="width:16px;height:16px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Admin: Limpiar Base de Datos</button>
                     </div>
                 </div>
             </aside>
-            <main class="flex-1 bg-gray-200 dark:bg-gray-900 flex items-center justify-center p-4">
-                <canvas id="canvas" class="max-w-full max-h-full object-contain shadow-lg"></canvas>
-                 <div id="placeholderText" class="text-center text-[var(--text-secondary-color)]">
-                    <p class="text-2xl font-bold">Esperando imagen del móvil...</p>
-                    <p>Conecta un dispositivo móvil a la sala para empezar.</p>
+            <main class="stage flex-1 flex items-center justify-center p-6">
+                <canvas id="canvas" class="max-w-full max-h-full object-contain"></canvas>
+                 <div id="placeholderText" class="text-center text-soft flex flex-col items-center gap-4">
+                    <span class="glass" style="width:88px;height:88px;display:grid;place-items:center;border-radius:24px"><svg class="ic" viewBox="0 0 24 24" style="width:40px;height:40px;color:var(--accent)"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
+                    <div>
+                       <p class="text-2xl font-bold">Esperando imagen del móvil…</p>
+                       <p class="mt-1">Conecta un dispositivo móvil a la sala para empezar.</p>
+                    </div>
                 </div>
+                <div id="filmstrip" class="filmstrip"></div>
             </main>
         </main>
     </div>
@@ -215,7 +343,7 @@ function renderCanvas() {
         ctx.filter = filters;
         ctx.drawImage(img, 0, 0);
         ctx.filter = 'none';
-        
+
         const fullRequestText = `${prefixInput.value}${requestNumberInput.value}`;
         const fontSize = parseInt(fontSizeInput.value, 10);
         const position = positionSelect.value;
@@ -233,7 +361,7 @@ function renderCanvas() {
             else { x = canvas.width - textMetrics.width - padding; y = canvas.height - padding; }
             ctx.strokeText(fullRequestText, x, y); ctx.fillText(fullRequestText, x, y);
         }
-        
+
         const selectedLogoIndex = parseInt(logoSelect.value, 10);
         if (!isNaN(selectedLogoIndex) && companyLogos[selectedLogoIndex] && companyLogos[selectedLogoIndex].src) {
             const logo = companyLogos[selectedLogoIndex];
@@ -292,13 +420,13 @@ function applyCrop() {
     img.src = canvas.toDataURL();
 }
 function downloadImage(format = 'png', quality = 1.0) {
-    renderCanvas(); 
-    setTimeout(() => { 
-        const link = document.createElement('a'); 
+    renderCanvas();
+    setTimeout(() => {
+        const link = document.createElement('a');
         const requestNum = `${prefixInput.value}${requestNumberInput.value}`;
         link.download = `${requestNum}.${format}`;
         link.href = canvas.toDataURL(`image/${format}`, quality);
-        link.click(); 
+        link.click();
     }, 100);
 }
 [...document.querySelectorAll('input[type="file"][data-slot]')].forEach(input => {
@@ -375,6 +503,71 @@ document.addEventListener('DOMContentLoaded', () => {
     setUIState(false); enableAllControls(false); setupDrawingAndCropping();
     channelIdInput.value = localStorage.getItem('lastChannelId') || '';
 });
+
+/* ===== FUNCIONES WOW: galería en vivo + aviso (sonido/pulso) + export PDF ===== */
+(function(){
+    let audioCtx = null, muted = localStorage.getItem('rxMuted') === '1';
+    const muteBtn = get('muteBtn');
+    const icOn = `<svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>`;
+    const icOff = `<svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>`;
+    function paintMute(){ if(muteBtn) muteBtn.innerHTML = muted ? icOff : icOn; }
+    function initAudio(){ if(!audioCtx){ try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){} } }
+    function chime(){ if(muted || !audioCtx) return; try{
+        const t = audioCtx.currentTime, o = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.type = 'sine'; o.frequency.setValueAtTime(784, t); o.frequency.setValueAtTime(1175, t + 0.09);
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.22, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.34);
+        o.connect(g).connect(audioCtx.destination); o.start(t); o.stop(t + 0.35);
+    }catch(e){} }
+    function pulse(){ const c = get('canvas'); if(!c) return; c.classList.remove('rx'); void c.offsetWidth; c.classList.add('rx'); setTimeout(() => c.classList.remove('rx'), 800); }
+    if(muteBtn){ paintMute(); muteBtn.addEventListener('click', () => { muted = !muted; localStorage.setItem('rxMuted', muted ? '1' : '0'); paintMute(); if(!muted) initAudio(); }); }
+    connectBtn.addEventListener('click', initAudio);
+
+    const strip = get('filmstrip'); let shots = 0;
+    function clearActive(){ if(strip) strip.querySelectorAll('.thumb.active').forEach(el => el.classList.remove('active')); }
+    function setActive(src){ originalImage = src; currentImage = src; history = [src]; enableAllControls(true); undoBtn.disabled = true; placeholderText.style.display = 'none'; canvas.style.display = 'block'; renderCanvas(); }
+    function galleryAdd(src){
+        if(!strip) return; shots++;
+        const t = document.createElement('div'); t.className = 'thumb new';
+        t.innerHTML = '<img src="' + src + '"><span class="badge">' + shots + '</span>';
+        t.addEventListener('click', () => { clearActive(); t.classList.add('active'); setActive(src); });
+        clearActive(); strip.appendChild(t); t.classList.add('active');
+        strip.scrollLeft = strip.scrollWidth;
+        while(strip.children.length > 40) strip.removeChild(strip.firstChild);
+    }
+
+    const _origProcess = processNewImage;
+    processNewImage = function(imageData){ _origProcess(imageData); galleryAdd(imageData); chime(); pulse(); };
+
+    const _origEnable = enableAllControls;
+    enableAllControls = function(enabled){ _origEnable(enabled); const p = get('downloadPdfBtn'); if(p) p.disabled = !enabled; };
+    const _pdf0 = get('downloadPdfBtn'); if(_pdf0) _pdf0.disabled = true;
+
+    const pdfBtn = get('downloadPdfBtn');
+    if(pdfBtn) pdfBtn.addEventListener('click', () => {
+        if(!currentImage) return;
+        renderCanvas();
+        setTimeout(() => {
+            try{
+                const requestNum = prefixInput.value + requestNumberInput.value;
+                const imgData = canvas.toDataURL('image/jpeg', 0.92);
+                const JsPDF = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : window.jsPDF;
+                const landscape = canvas.width >= canvas.height;
+                const pdf = new JsPDF({ orientation: landscape ? 'l' : 'p', unit: 'pt', format: 'a4' });
+                const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
+                const margin = 36, footerH = 46;
+                const rr = Math.min((pw - margin * 2) / canvas.width, (ph - margin * 2 - footerH) / canvas.height);
+                const w = canvas.width * rr, h = canvas.height * rr;
+                pdf.addImage(imgData, 'JPEG', (pw - w) / 2, margin, w, h);
+                const now = new Date();
+                const stamp = 'Nº de registro: ' + requestNum + '     ·     ' + now.toLocaleDateString('es-ES') + ' ' + now.toLocaleTimeString('es-ES');
+                pdf.setFontSize(12); pdf.setTextColor(30, 30, 30);
+                pdf.text(stamp, pw / 2, ph - margin, { align: 'center' });
+                pdf.save(requestNum + '.pdf');
+                showToast('PDF generado', 'success');
+            }catch(e){ showToast('Error al generar PDF: ' + e.message, 'error'); }
+        }, 120);
+    });
+})();
 </script>
 </body>
 </html>
