@@ -74,7 +74,9 @@
         .status-pill::before { content:""; width:8px; height:8px; border-radius:50%; background:currentColor; box-shadow:0 0 8px currentColor; }
 
         /* controls */
-        .field { background:var(--field-bg); border:1px solid var(--field-brd); color:var(--text-color); border-radius:12px; transition:.18s; }
+        /* selector input/select/textarea.field: sube especificidad para ganar al reset de @tailwindcss/forms
+           (background-color:#fff), que si no fuerza fondo blanco y deja el texto claro invisible en modo oscuro */
+        .field, input.field, select.field, textarea.field { background:var(--field-bg); border:1px solid var(--field-brd); color:var(--text-color); border-radius:12px; transition:.18s; }
         .field::placeholder { color:var(--text-secondary-color); opacity:.8; }
         .field:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); }
         select.field option { background:var(--page); color:var(--text-color); }

@@ -61,7 +61,9 @@
         .ic { width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round; stroke-linejoin:round; }
         .logo-mark { width:42px; height:42px; border-radius:13px; display:grid; place-items:center; background:var(--accent-grad); color:#fff; box-shadow:0 6px 16px var(--accent-glow); flex-shrink:0; }
 
-        .field { background:var(--field-bg); border:1px solid var(--field-brd); color:var(--text-color); border-radius:14px; transition:.18s; }
+        /* selector input/select/textarea.field: sube especificidad para ganar al reset de @tailwindcss/forms
+           (background-color:#fff), que si no fuerza fondo blanco y deja el texto claro invisible en modo oscuro */
+        .field, input.field, select.field, textarea.field { background:var(--field-bg); border:1px solid var(--field-brd); color:var(--text-color); border-radius:14px; transition:.18s; }
         .field::placeholder { color:var(--text-secondary-color); opacity:.85; }
         .field:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); }
 
